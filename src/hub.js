@@ -184,15 +184,7 @@ import "./gltf-component-mappings";
 import './systems/research/research-logger';
 import './systems/research/research-tourguide';
 
-import { App, getScene } from "./app";
-import MediaDevicesManager from "./utils/media-devices-manager";
-import PinningHelper from "./utils/pinning-helper";
-import { sleep } from "./utils/async-utils";
-import { platformUnsupported } from "./support";
-import { renderAsEntity } from "./utils/jsx-entity";
-import { VideoMenuPrefab } from "./prefabs/video-menu";
-import { ObjectMenuPrefab } from "./prefabs/object-menu";
-import { preload } from "./utils/preload";
+import { App } from "./App";
 
 window.APP = new App();
 renderAsEntity(APP.world, VideoMenuPrefab());
@@ -677,14 +669,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
 
 async function runBotMode(scene, entryManager) {
   const noop = () => { };
-  const alwaysFalse = () => false;
-  scene.renderer = {
-    setAnimationLoop: noop,
-    render: noop,
-    shadowMap: {},
-    vr: { isPresenting: alwaysFalse },
-    setSize: noop
-  };
+  scene.renderer = { setAnimationLoop: noop, render: noop };
 
   while (!NAF.connection.isConnected()) await nextTick();
   entryManager.enterSceneWhenLoaded(false, false);
