@@ -181,6 +181,9 @@ import "./systems/audio-gain-system";
 
 import "./gltf-component-mappings";
 
+import './systems/research/research-logger';
+import './systems/research/research-tourguide';
+
 import { App, getScene } from "./app";
 import MediaDevicesManager from "./utils/media-devices-manager";
 import PinningHelper from "./utils/pinning-helper";
@@ -673,8 +676,7 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
 }
 
 async function runBotMode(scene, entryManager) {
-  console.log("Running in bot mode...");
-  const noop = () => {};
+  const noop = () => { };
   const alwaysFalse = () => false;
   scene.renderer = {
     setAnimationLoop: noop,
