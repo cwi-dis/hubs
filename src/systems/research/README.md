@@ -15,7 +15,7 @@ relieve network load on the [janus server](https://bit.ly/3ckvqui
 collection and make sure you set the content-security-policy in your
 Hubs as well as CORS on your data server.
 
-#### Schema
+#### schema
 We record the POST data as:
 ```
 {
@@ -107,7 +107,9 @@ The tourguide chat added code into `message-dispatch.js` and
 `./react-components/chat-command-help.js` as well as the i18n
 translations.
 
-## Notes
+
+
+## notes
 
  * [Utopiah](https://github.com/Utopiah) has a lot of
    [notes](https://fabien.benetou.fr/Tools/Hubs) and [gist
