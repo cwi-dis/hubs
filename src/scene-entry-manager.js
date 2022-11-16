@@ -76,7 +76,7 @@ export default class SceneEntryManager {
       await exit2DInterstitialAndEnterVR(true);
     }
 
-    moveToSpawnPoint(APP.world);
+    moveToSpawnPoint(APP.world, this.scene.systems["hubs-systems"].characterController);
     // const waypointSystem = this.scene.systems["hubs-systems"].waypointSystem;
     // waypointSystem.moveToSpawnPoint();
 

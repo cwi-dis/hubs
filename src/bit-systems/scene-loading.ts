@@ -12,6 +12,7 @@ import { ExitReason } from "../react-components/room/ExitedRoomScreen";
 import { EnvironmentSystem } from "../systems/environment-system";
 import { Mesh } from "three";
 import { moveToSpawnPoint } from "./waypoint-system";
+import { CharacterControllerSystem } from "../systems/character-controller-system";
 
 export function swapActiveScene(world: HubsWorld, src: string) {
   const currentScene = anyEntityWith(APP.world, SceneRoot);
@@ -23,7 +24,13 @@ export function swapActiveScene(world: HubsWorld, src: string) {
   (document.querySelector("#environment-scene") as AElement).object3D.add(world.eid2obj.get(newScene)!);
 }
 
-function* loadScene(world: HubsWorld, eid: number, signal: AbortSignal, environmentSystem: EnvironmentSystem) {
+function* loadScene(
+  world: HubsWorld,
+  eid: number,
+  signal: AbortSignal,
+  environmentSystem: EnvironmentSystem,
+  characterController: CharacterControllerSystem
+) {
   try {
     const src = APP.getString(SceneLoader.src[eid]);
     if (!src) {
@@ -64,7 +71,7 @@ function* loadScene(world: HubsWorld, eid: number, signal: AbortSignal, environm
     document.querySelector(".a-canvas")!.classList.remove("a-hidden");
     sceneEl.addState("visible");
     if (sceneEl.is("entered")) {
-      moveToSpawnPoint(world);
+      moveToSpawnPoint(world, characterController);
     }
     const fader = (document.getElementById("viewing-camera")! as AElement).components["fader"];
     (fader as any).fadeIn();
@@ -82,11 +89,15 @@ const abortControllers = new Map();
 const sceneLoaderQuery = defineQuery([SceneLoader]);
 const sceneLoaderEnterQuery = enterQuery(sceneLoaderQuery);
 const sceneLoaderExitQuery = exitQuery(sceneLoaderQuery);
-export function sceneLoadingSystem(world: HubsWorld, environmentSystem: EnvironmentSystem) {
+export function sceneLoadingSystem(
+  world: HubsWorld,
+  environmentSystem: EnvironmentSystem,
+  characterController: CharacterControllerSystem
+) {
   sceneLoaderEnterQuery(world).forEach(function (eid) {
     const ac = new AbortController();
     abortControllers.set(eid, ac);
-    jobs.add(coroutine(loadScene(world, eid, ac.signal, environmentSystem)));
+    jobs.add(coroutine(loadScene(world, eid, ac.signal, environmentSystem, characterController)));
   });
 
   sceneLoaderExitQuery(world).forEach(function (eid) {
