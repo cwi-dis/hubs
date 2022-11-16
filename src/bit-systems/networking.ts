@@ -20,7 +20,7 @@ import {
 import { getServerTime } from "../phoenix-adapter";
 import { CameraPrefab, CubeMediaFramePrefab } from "../prefabs/camera-tool";
 import { MediaPrefab } from "../prefabs/media";
-import { defineNetworkSchema } from "../utils/bit-utils";
+import { defineNetworkSchema } from "../utils/define-network-schema";
 import { renderAsEntity } from "../utils/jsx-entity";
 
 const prefabs = new Map(

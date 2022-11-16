@@ -364,6 +364,7 @@ export function createPlaneBufferGeometry(width, height, widthSegments, heightSe
   return geometry;
 }
 
+import { Object3D } from "three";
 import { Layers } from "../camera-layers";
 
 // This code is from three-vrm. We will likely be using that in the future and this inlined code can go away
@@ -480,6 +481,10 @@ export const isFacingCamera = (function () {
   };
 })();
 
+/**
+ * @param {Object3D} obj
+ * @param {(obj: Object3D) => boolean} predicate
+ */
 export function findAncestor(obj, predicate) {
   let ancestor = obj;
   while (ancestor) {
