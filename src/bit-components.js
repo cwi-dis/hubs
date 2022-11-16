@@ -169,3 +169,7 @@ export const Deletable = defineComponent();
 
 export const EnvironmentSettings = defineComponent();
 EnvironmentSettings.map = new Map();
+
+export const Waypoint = defineComponent({
+  flags: Types.ui8
+});

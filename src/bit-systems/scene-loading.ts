@@ -11,6 +11,7 @@ import { ScenePrefab } from "../prefabs/scene";
 import { ExitReason } from "../react-components/room/ExitedRoomScreen";
 import { EnvironmentSystem } from "../systems/environment-system";
 import { Mesh } from "three";
+import { moveToSpawnPoint } from "./waypoint-system";
 
 export function swapActiveScene(world: HubsWorld, src: string) {
   const currentScene = anyEntityWith(APP.world, SceneRoot);
@@ -58,9 +59,13 @@ function* loadScene(world: HubsWorld, eid: number, signal: AbortSignal, environm
         AFRAME.scenes[0].systems.nav.loadMesh(o as Mesh, "character");
       }
     });
-    AFRAME.scenes[0].emit("environment-scene-loaded", scene);
+    const sceneEl = AFRAME.scenes[0];
+    sceneEl.emit("environment-scene-loaded", scene);
     document.querySelector(".a-canvas")!.classList.remove("a-hidden");
-    AFRAME.scenes[0].addState("visible");
+    sceneEl.addState("visible");
+    if (sceneEl.is("entered")) {
+      moveToSpawnPoint(world);
+    }
     const fader = (document.getElementById("viewing-camera")! as AElement).components["fader"];
     (fader as any).fadeIn();
     removeComponent(world, SceneLoader, eid);
