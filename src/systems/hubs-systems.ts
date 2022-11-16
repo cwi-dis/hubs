@@ -55,6 +55,7 @@ import { Camera, Scene, WebGLRenderer } from "three";
 import { HubsWorld } from "../app";
 import { EffectComposer } from "postprocessing";
 import { sceneLoadingSystem } from "../bit-systems/scene-loading";
+import { waypointSystem } from "../bit-systems/waypoint-system";
 
 declare global {
   interface Window {
@@ -160,7 +161,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
 
   networkReceiveSystem(world);
   onOwnershipLost(world);
-  sceneLoadingSystem(world, hubsSystems.environmentSystem);
+  sceneLoadingSystem(world, hubsSystems.environmentSystem, hubsSystems.characterController);
   mediaLoadingSystem(world);
 
   physicsCompatSystem(world);
@@ -177,6 +178,7 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
   // We run this earlier in the frame so things have a chance to override properties run by animations
   hubsSystems.animationMixerSystem.tick(dt);
 
+  waypointSystem(world, hubsSystems.characterController, sceneEl.is("frozen"));
   hubsSystems.characterController.tick(t, dt);
   hubsSystems.cursorTogglingSystem.tick(aframeSystems.interaction, aframeSystems.userinput, hubsSystems.el);
   hubsSystems.interactionSfxSystem.tick(
