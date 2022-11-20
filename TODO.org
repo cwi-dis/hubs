@@ -1,0 +1,419 @@
+* DONE Remove window.APP references from utils/theme.js
+so that we can ship the scene page without importing App and aframe.
+(On branch feature/simplify-scene-page)
+* TODO waypoint-preview-avatar-template :wink:
+* DONE ship simplify-scene-page
+* TODO Fix initial networking messages
+Phoenix connects and starts receiving naf and nafr messages before the PhoenixAdapter is ready to receive them.
+
+Add an event listener on the hub phoenix channel that queues messages.
+When the phoenix adapter connects, consume the queue.
+Send an email to dom and john's sad box every time it happens.
+
+* Waypoints
+** Show a preview avatar on hover
+** Scale them down a bit
+** Support "occupiable" waypoints
+
+Seats can be sat in by 1 present person at a time.
+
+A seat is empty if no one is sitting in it, or if the person sitting in it isn't here anymore.
+
+If two people try to sit, then everyone agrees that whoever sat first gets to sit (with tiebreak on client ID).
+
+** Show whether they're occupied?
+* Ownership
+Soft ownership means put a number lower than any hard ownership number could have been.
+
+
+duck: whoever takes it last gets the duck.
+people only ever hard take it.
+
+video:
+- someone in the room can take over
+- if no one has it, someone should take it.
+- when someone joins, they shouldn't be allowed to takeover on accident.
+
+Messages clients send:
+"i'll take it if no one wants it" [timestamp]
+"i'll take it now" [timestamp]
+
+Decisions client make:
+"i want the most recent person to have it"
+"i want the oldest person to have it"
+
+
+** Ducks
+Clients send "i'll take it now" [timestamp]
+Clients decide "i want the most recent person to have it"
+
+** Videos
+Clients send "i'll take it now" [timestamp]
+"i'll take it if no one wants it" [timestamp]
+
+"i want the most recent person to have it, /if they wanted it/"
+"i want the oldest person to have it, /if no one wanted it/"
+
+Message comes in...
+
+- Does the new person want it?
+- Did the person who owns it now want it?
+
+ | new person    | owner person | most recent or oldest win | who wins     |
+ |---------------+--------------+---------------------------+--------------|
+ | want it       | want it      | most recent               | new person   |
+ | want it       | want it      | oldest win                | owner person |
+ | don't want it | want it      | most recent               | owner person |
+ | don't want it | want it      | oldest win                | owner person |
+ | want it       | dont want it | most recent               | new person   |
+ | want it       | dont want it | oldest win                | new person   |
+ | dont want it  | dont want it | most recent               | new person   |
+ | dont want it  | dont want it | oldest win                | owner person |
+ |               |              |                           |              |
+
+ When you take ownership in the case of "I'm taking ownership of a soft-owned object because the owner is leaving".
+ I set the soft ownership time of the latest timestamp of what I've received.
+
+An ownership claim looks like this:
+- timestamp of this message
+- soft or hard ownership
+- soft ownership timestamp (if soft)
+- hard ownership timestamp (if hard)
+
+The object needs to mark:
+- soft tiebreak rule
+- hard tiebreak rule
+
+
+
+* Ducks
+* Clicking Seats
+* Videos
+* Spawning into Seats
+Rules about seats:
+ - Lowest timestamp wins.
+
+Not covered yet:
+ - Someone leaves.
+ - People leave the seat.
+
+Each client loads seats from the scene.
+
+** START:
+I'm thinking, I need a seat.
+
+** SEAT SELECTION:
+A seat may or may not be available.
+
+** NO SEAT AVAILABLE:
+If a seat is NOT available... wait for a seat to be available?
+
+** SIT:
+If a seat is available...
+
+I think seat A is empty, so I send:
+"I want to sit in seat A."
+{
+  sitter: <client id> | null;
+  claim: <client id> + <claim time>
+}
+
+
+** RE-EVALUATE:
+I may or may not still need a seat.
+
+If I need a new seat, jump to START.
+
+If I do not need a seat, DONE.
+
+** LEAVE A SEAT:
+If I receive "I'm not in this seat anymore".
+
+{
+  sitter: null;
+  claim: <client id> + <client time>
+}
+
+If this came from the owner, I care about the message.
+If this came from someone who should be the owner, I care about this message.
+[ I'm scared the person I think is the owner already left. ]
+
+
+
+*
+When I want to claim a seat, I send:
+{
+  sitter: <client id> | null;
+  claim: <client id> + <claim time>
+}
+
+When I want to leave a seat, I send:
+{
+  sitter: null;
+  claim: <client id> + <client time>
+}
+
+When I see the claimant leave, the chair is unoccupied and I ask,
+{
+  "send me info about stuff you have a claim on"
+}
+
+When I receive a claim, if the claimant wins then I apply. Otherwise ignore.
+
+
+Alice sees this:
+
+  Bob 10
+  Charlie 20 <- (stored)
+  Bob Leaves.
+  [Alice sends, "Anyone in this chair?"]
+  [Charlie resends 20]
+
+Charlie sees this:
+
+  Bob 10
+  Bob Leaves.
+  Charlie sends 20.
+  [Charlie sees "anyone in this chair?"]
+  [Charlie sends 20]
+
+Charlie (could have) seen this:
+
+  Charlie sends 20.
+  Bob 10
+  Charlie stands up.
+  Bob Leaves.
+
+Bob:
+  Bob sends 10
+  Bob leaves.
+
+
+
+
+
+
+
+*
+For a video in the scene...
+
+
+I join and send this:
+{
+  playhead: 0,
+  clientId: A,
+  vc : [1, 0, 0],
+}
+
+And B sends this:
+{
+  playhead: 0,
+  clientId: B
+  vc: [0, 1, 0]
+}
+
+Eventually they receive each others and agree on A
+
+on A:
+{
+  playhead: 0,
+  owner: A
+  vc : [ 2, 1, 0]
+}
+
+on B:
+{
+  playhead: 0,
+  owner: A
+  vc : [ 1, 2, 0]
+}
+
+So then A starts sending updates
+
+SEND
+{
+  playhead: 20
+  owner: A
+  vc: [ 2, 1, 0]
+}
+{
+  playhead: 30
+  owner: A
+  vc: [ 3, 1, 0]
+}
+{
+  playhead: 40
+  owner: A
+  vc: [ 4, 1, 0]
+}
+
+And B updates its state accordingly...
+
+{
+  playhead: 40
+  owner: A
+  vc: [ 4, 1, 0]
+}
+
+B takes ownership...
+SEND:
+{
+  playhead: 10
+  owner: B
+  vc: [ 4, 2, 0]
+}
+
+
+-----------------------------------
+
+C joins
+[0,0,0]
+
+A and B will ignore this from C:
+{
+  sender: C,
+  playhead: 0
+  owner: C
+  vc: [0,0,1]
+}
+
+A will ignore it because A thinks A is the owner and has local clock:
+[5,1,0] > [0,0,1]
+
+B will ignore it because B thinks A is the owner and has local clock:
+[4,1,0] > [0,0,1]
+
+Receives
+{
+  sender: A
+  playhead: 20
+  owner: A
+  vc: [5, 1, 0]
+}
+
+* C joins later and wants to play the video
+
+Local:
+{
+  no state!
+}
+
+C sends...
+{
+  nid: "the-video-nid",
+  soft-owner: "C",
+  soft-owner-time: 100
+  owner: null,
+  owner-time: null,
+  timestamp: 100
+}
+
+C receives (from A):
+{
+  nid: "the-video-nid",
+  soft-owner: "A",
+  soft-owner-time: 50,
+  owner: null,
+  owner-time: null,
+  timestamp: 110,
+}
+
+So in this case, C takes the network data.
+Local:
+{
+  nid: "the-video-nid",
+  soft-owner: "A",
+  soft-owner-time: 50,
+  owner: null,
+  owner-time: null,
+}
+
+A ignored the message from C because:
+A.local.soft-owner is 50 < 100.
+
+* A leaves
+
+C sends:
+{
+  nid: "the-video-nid",
+  soft-owner: null,
+  soft-owner-time: null,
+  owner: "C",
+  owner-time: 110,
+}
+
+B sends:
+{
+  nid: "the-video-nid",
+  soft-owner: null,
+  soft-owner-time: null,
+  owner: "B",
+  owner-time: 110,
+}
+
+C receives (from B), and updates its local state because B>C:
+{
+  nid: "the-video-nid",
+  soft-owner: null,
+  soft-owner-time: null,
+  owner: "B",
+  owner-time: 110,
+}
+
+B is the owner, starts to send updates...
+
+* Client D joins.
+
+Local:
+{
+  no state!
+}
+
+D sends...
+{
+  nid: "the-video-nid",
+  soft-owner: "D",
+  soft-owner-time: 200
+  owner: null,
+  owner-time: null,
+  timestamp: 200
+}
+
+D receives (from B):
+{
+  nid: "the-video-nid",
+  soft-owner: null,
+  soft-owner-time: null,
+  owner: "B",
+  owner-time: 110,
+  timestamp: 220,
+}
+
+D (correctly) thinks that B is the owner.
+
+* Soft owner leaves...
+A (the soft owner) leaves...
+
+B (the heir to the throne) sends:
+A_soft_ownership_time - latest_received_time_stamp
+
+C (who has out of date info):
+A_soft_ownership_time - out_of_date_time_stamp
+
+B is lower than C.
+
+D joins as A is leaving...:
+D sends D_soft_ownership_time
+
+B is still lower than D, because D_soft_ownership_time is much larger than A_soft_ownership_time
+
+* Clicking on seats:
+Hard ownership
+
+* Spawning into seats:
+
+No one has anything...
+A sends soft owner claim.
+A gets it.
+
+*

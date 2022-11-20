@@ -53,7 +53,7 @@ import {
 } from "./utils/phoenix-utils";
 import { Presence } from "phoenix";
 import { emitter } from "./emitter";
-import "./phoenix-adapter";
+import PhoenixAdapter from "./phoenix-adapter";
 
 import nextTick from "./utils/next-tick";
 import { addAnimationComponents } from "./utils/animation";
@@ -586,6 +586,15 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
     { once: true }
   );
 
+  const adapter = new PhoenixAdapter();
+  adapter.hubChannel = hubChannel;
+  adapter.events = events;
+  adapter.session_id = data.session_id;
+  adapter.doConnect();
+  NAF.adapters.register("phoenix", function () {
+    return adapter;
+  });
+
   scene.setAttribute("networked-scene", {
     room: hub.hub_id,
     serverURL: `wss://${hub.host}:${hub.port}`, // TODO: This is confusing because this is the dialog host and port.
@@ -616,9 +625,10 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
       scene.addEventListener(
         "adapter-ready",
         ({ detail: adapter }) => {
-          adapter.hubChannel = hubChannel;
-          adapter.events = events;
-          adapter.session_id = data.session_id;
+          // adapter.hubChannel = hubChannel;
+          // adapter.events = events;
+          // adapter.session_id = data.session_id;
+          //
         },
         { once: true }
       );
@@ -1110,6 +1120,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // const duckChannel = socket.channel(`obj:123`);
+  // duckChannel.join().receive("ok", console.log).receive("error", console.error).receive("timeout", console.error);
+  // duckChannel.on("message", console.log);
+  // window.duck = duckChannel;
+
   const messageDispatch = new MessageDispatch(scene, entryManager, hubChannel, remountUI, mediaSearchStore);
   APP.messageDispatch = messageDispatch;
   document.getElementById("avatar-rig").messageDispatch = messageDispatch;
@@ -1233,6 +1248,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       entryDisallowed: !hubChannel.canEnterRoom(uiProps.hub)
     });
   });
+
+  hubPhxChannel.on("naf", data => {
+    console.log("SADnMAD", data);
+  });
+  hubPhxChannel.on("nafr", data => {
+    console.log("SADnMAD", data);
+  });
+
+  window.pain = hubPhxChannel;
 
   hubPhxChannel
     .join()

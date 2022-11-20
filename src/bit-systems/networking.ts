@@ -9,7 +9,15 @@ import {
   removeEntity
 } from "bitecs";
 import { HubsWorld } from "../app";
-import { AEntity, Networked, NetworkedMediaFrame, NetworkedTransform, NetworkedVideo, Owned } from "../bit-components";
+import {
+  AEntity,
+  Networked,
+  NetworkedMediaFrame,
+  NetworkedTransform,
+  NetworkedVideo,
+  NetworkedWaypoint,
+  Owned
+} from "../bit-components";
 import { CameraPrefab, CubeMediaFramePrefab } from "../prefabs/camera-tool";
 import { MediaPrefab } from "../prefabs/media";
 import { defineNetworkSchema } from "../utils/define-network-schema";
@@ -104,6 +112,7 @@ const schemas: Map<Component, NetworkSchema> = new Map();
 schemas.set(NetworkedMediaFrame, defineNetworkSchema(NetworkedMediaFrame));
 schemas.set(NetworkedTransform, defineNetworkSchema(NetworkedTransform));
 schemas.set(NetworkedVideo, defineNetworkSchema(NetworkedVideo));
+schemas.set(NetworkedWaypoint, defineNetworkSchema(NetworkedWaypoint));
 const networkableComponents = Array.from(schemas.keys());
 
 type NetworkID = string;
@@ -138,6 +147,7 @@ if (!NAF) {
 } else {
   NAF.connection.subscribeToDataChannel("nn", function (fromClientId, _dataType, data) {
     data.fromClientId = fromClientId;
+    console.log("GOT MESSGAE", data);
     pendingMessages.push(data);
   });
 }
@@ -233,7 +243,7 @@ export function networkReceiveSystem(world: HubsWorld) {
       // ignore entities the parting user created as they were just deleted
       networkedObjects
         .filter(eid => Networked.owner[eid] === partingClientId && Networked.creator[eid] !== partingClientId)
-        .forEach(eid => takeOwnership(world, eid));
+        .forEach(eid => takeOwnership(world, eid)); // TODO: takeOwnershipWithTime(lastReceivedTimestamp)
     });
     pendingParts.length = 0;
   }
@@ -283,6 +293,8 @@ export function networkReceiveSystem(world: HubsWorld) {
     for (let j = 0; j < message.updates.length; j++) {
       const updateMessage = message.updates[j];
       const nid = APP.getSid(updateMessage.nid);
+
+      console.log(updateMessage);
 
       if (world.ignoredNids.has(nid)) {
         console.log(`Ignoring update for ignored entity ${updateMessage.nid}`);
@@ -385,6 +397,7 @@ export function networkSendSystem(world: HubsWorld) {
         true
       );
       if (message) {
+        console.log("sending", message);
         pendingJoins.forEach(clientId => NAF.connection.sendDataGuaranteed(APP.getString(clientId)!, "nn", message));
       }
       pendingJoins.length = 0;

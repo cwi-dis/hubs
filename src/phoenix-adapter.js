@@ -7,10 +7,12 @@ const getTimeOffsetToServer = async () => {
   const clientSentTime = Date.now();
   const serverReceivedTime =
     new Date(
-      (await fetch(document.location.href, {
-        method: "HEAD",
-        cache: "no-cache"
-      })).headers.get("Date")
+      (
+        await fetch(document.location.href, {
+          method: "HEAD",
+          cache: "no-cache"
+        })
+      ).headers.get("Date")
     ).getTime() +
     precision / 2;
   const clientReceivedTime = Date.now();
@@ -64,17 +66,23 @@ export default class PhoenixAdapter {
     this.nafOccupantLeave = nafOccupantLeave;
     this.nafMessageReceived = nafMessageReceived;
   }
-  async connect() {
+  async doConnect() {
     this.refs.set("naf", this.hubChannel.channel.on("naf", this.handleIncomingNAF));
     this.refs.set("nafr", this.hubChannel.channel.on("nafr", this.handleIncomingNAFR));
-
-    this.nafConnectSuccess(this.session_id);
     this.reliableTransport = transportForChannel(this.hubChannel.channel, true);
     this.unreliableTransport = transportForChannel(this.hubChannel.channel, false);
-
+  }
+  async connect() {
     this.hubChannel.presence.list(key => key).forEach(this.nafOccupantJoined);
-    this.refs.set("hub:join", this.events.on(`hub:join`, ({ key }) => this.nafOccupantJoined(key)));
-    this.refs.set("hub:leave", this.events.on(`hub:leave`, ({ key }) => this.nafOccupantLeave(key)));
+    this.refs.set(
+      "hub:join",
+      this.events.on(`hub:join`, ({ key }) => this.nafOccupantJoined(key))
+    );
+    this.refs.set(
+      "hub:leave",
+      this.events.on(`hub:leave`, ({ key }) => this.nafOccupantLeave(key))
+    );
+    this.nafConnectSuccess(this.session_id);
   }
   shouldStartConnectionTo() {}
   startStreamConnection() {}
@@ -162,6 +170,7 @@ export default class PhoenixAdapter {
   }
 
   handleIncomingNAF = data => {
+    console.log("SAD", data);
     const message = authorizeOrSanitizeMessage(data);
     const source = "phx-reliable";
     if (!message.dataType) return;
@@ -175,6 +184,7 @@ export default class PhoenixAdapter {
     }
   };
   handleIncomingNAFR = ({ from_session_id, naf: unparsedData }) => {
+    console.log("SAD", data);
     // Server optimization: server passes through unparsed NAF message, we must now parse it.
     const data = JSON.parse(unparsedData);
     data.from_session_id = from_session_id;
@@ -252,5 +262,3 @@ export default class PhoenixAdapter {
     this._blockedClients.delete(clientId);
   }
 }
-
-NAF.adapters.register("phoenix", PhoenixAdapter);

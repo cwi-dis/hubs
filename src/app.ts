@@ -135,7 +135,7 @@ export class App {
       this.sid2str.set(sid, str);
       return sid;
     }
-    return this.str2sid.get(str);
+    return this.str2sid.get(str)!;
   }
 
   getString(sid: number) {
@@ -158,14 +158,25 @@ export class App {
 
     const enablePostEffects = this.store.state.preferences.enablePostEffects;
 
-    const renderer = new WebGLRenderer({
-      alpha: true,
-      antialias: !enablePostEffects,
-      depth: !enablePostEffects,
-      stencil: false,
-      powerPreference: "high-performance",
-      canvas
-    });
+    let rend: any;
+    while (!rend) {
+      const params = {
+        alpha: true,
+        antialias: !enablePostEffects,
+        depth: !enablePostEffects,
+        stencil: false,
+        powerPreference: "high-performance",
+        canvas
+      };
+      try {
+        rend = new WebGLRenderer(params);
+      } catch (e) {
+        console.error(e);
+        console.log("Retrying with same arguments:", params);
+      }
+    }
+    const renderer = rend as WebGLRenderer;
+    console.log("Got renderer", renderer);
 
     // We manually handle resetting this in mainTick so that stats are correctly reported with post effects enabled
     renderer.info.autoReset = false;
