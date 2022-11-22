@@ -6,8 +6,10 @@ import { detectOS } from 'detect-browser';
 
 AFRAME.registerSystem('research-logger', {
   init: function() {
-    this.enableLogger = qsTruthy('log');
+    this.enableLogger = qsTruthy('log') || window.location.pathname.indexOf("vrsocial") > -1;
+
     console.log("RESEARCH LOGGER", this.enableLogger);
+
     this.tickCount = 0;
     this.lastFPS = 0;
     this.lastFpsUpdate = performance.now();
@@ -114,7 +116,7 @@ AFRAME.registerSystem('research-logger', {
     return deviceInfo;
   },
 
-  researchCollect(data, url = "https://*.*/log") {
+  researchCollect(data, url = "https://usertesting.dis.cwi.nl/mozillahubs") {
     if (data === undefined) return;
     axios
       .post(url, data)
