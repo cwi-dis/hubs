@@ -15,6 +15,7 @@ import {
   NetworkedMediaFrame,
   NetworkedTransform,
   NetworkedVideo,
+  NetworkedWaypoint,
   Owned
 } from "../bit-components";
 import { getServerTime } from "../phoenix-adapter";
@@ -134,6 +135,7 @@ const schemas: Map<Component, NetworkSchema> = new Map();
 schemas.set(NetworkedMediaFrame, defineNetworkSchema(NetworkedMediaFrame));
 schemas.set(NetworkedTransform, defineNetworkSchema(NetworkedTransform));
 schemas.set(NetworkedVideo, defineNetworkSchema(NetworkedVideo));
+schemas.set(NetworkedWaypoint, defineNetworkSchema(NetworkedWaypoint));
 const networkableComponents = Array.from(schemas.keys());
 
 type ClientID = string;

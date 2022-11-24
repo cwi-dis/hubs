@@ -1,7 +1,7 @@
 /** @jsx createElementEntity */
 import { addComponent } from "bitecs";
 import { HubsWorld } from "../app";
-import { Waypoint } from "../bit-components";
+import { Networked, NetworkedWaypoint, Waypoint } from "../bit-components";
 import { WaypointFlags } from "../bit-systems/waypoint-system";
 import { createElementEntity, createRef, renderAsEntity } from "../utils/jsx-entity";
 import spawnPointSrc from "../assets/images/sprites/notice/spawn-point.png";
@@ -34,6 +34,11 @@ export function inflateWaypoint(world: HubsWorld, eid: number, props: WaypointPa
   if (props.willMaintainInitialOrientation) flags |= WaypointFlags.willMaintainInitialOrientation;
   if (props.snapToNavMesh) flags |= WaypointFlags.snapToNavMesh;
   Waypoint.flags[eid] = flags;
+
+  if (true || props.canBeOccupied) {
+    addComponent(world, Networked, eid);
+    addComponent(world, NetworkedWaypoint, eid);
+  }
 
   if (props.canBeClicked) {
     const { texture, cacheKey } = loadTextureFromCache(spawnPointSrc, 1);
