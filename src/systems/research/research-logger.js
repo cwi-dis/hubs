@@ -23,24 +23,42 @@ AFRAME.registerSystem('research-logger', {
     if (!this.enableLogger) {
       return;
     }
+
     const timestamp = this.ntpMoment.utc().valueOf();
+
     // FPS
     const now = performance.now();
     this.frameCount++;
+
     if (now >= this.lastFpsUpdate + 1000) {
       this.lastFPS = parseFloat((this.frameCount / ((now - this.lastFpsUpdate) / 1000)).toFixed(2));
       this.lastFpsUpdate = now;
       this.frameCount = 0;
     }
+
     const userinput = AFRAME.scenes[0].systems.userinput;
+
     const avatarPOV = document.getElementById('avatar-pov-node');
     const avatarRig = document.getElementById('avatar-rig');
+    const leftHandRig = document.getElementById('left-cursor-controller');
+    const rightHandRig = document.getElementById('right-cursor-controller');
+
     const rigPosition = avatarRig.object3D.getWorldPosition(new THREE.Vector3());
     const rigQuant = avatarRig.object3D.getWorldQuaternion(new THREE.Quaternion());
     const rigDirection = avatarRig.object3D.getWorldDirection(new THREE.Vector3());
+
     const povPosition = avatarPOV.object3D.getWorldPosition(new THREE.Vector3());
     const povQuant = avatarPOV.object3D.getWorldQuaternion(new THREE.Quaternion());
     const povDirection = avatarPOV.object3D.getWorldDirection(new THREE.Vector3());
+
+    const leftHandPosition = leftHandRig.object3D.getWorldPosition(new THREE.Vector3());
+    const leftHandQuat = leftHandRig.object3D.getWorldQuaternion(new THREE.Quaternion());
+    const leftHandDirection = leftHandRig.object3D.getWorldDirection(new THREE.Vector3());
+
+    const rightHandPosition = rightHandRig.object3D.getWorldPosition(new THREE.Vector3());
+    const rightHandQuat = rightHandRig.object3D.getWorldQuaternion(new THREE.Quaternion());
+    const rightHandDirection = rightHandRig.object3D.getWorldDirection(new THREE.Vector3());
+
     this.payload.push([
       timestamp, // eventtime
       AFRAME.scenes[0].ownerDocument.location.pathname,
@@ -86,7 +104,9 @@ AFRAME.registerSystem('research-logger', {
         avatarRig.components["player-info"].isRecording,
         avatarRig.components["player-info"].isOwner,
       ];
+
       infodata = infodata.concat(this.getDeviceInfo());
+
       this.researchCollect({ info: infodata, data: this.payload });
       this.payload = [];
       this.tickCount = 0;
@@ -113,11 +133,13 @@ AFRAME.registerSystem('research-logger', {
       AFRAME.utils.device.isTablet() ? 1 : 0,
       AFRAME.utils.device.isWebXRAvailable ? 1 : 0
     ];
+
     return deviceInfo;
   },
 
   researchCollect(data, url = "https://usertesting.dis.cwi.nl/mozillahubs") {
     if (data === undefined) return;
+
     axios
       .post(url, data)
       .then(response => {
