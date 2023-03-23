@@ -122,9 +122,9 @@ AFRAME.registerSystem('research-logger', {
 
   flattenHandData(position, quaternion, direction) {
     return {
-      pos: [position.x, position.y, position.z].map(this.flattenZeros),
-      rot: [quaternion._x, quaternion._y, quaternion._z, quaternion._w].map(this.flattenZeros),
-      dir: [direction.x, direction.y, direction.z].map(this.flattenZeros)
+      pos: [position.x, position.y, position.z],
+      rot: [quaternion._x, quaternion._y, quaternion._z, quaternion._w],
+      dir: [direction.x, direction.y, direction.z]
     };
   },
 
