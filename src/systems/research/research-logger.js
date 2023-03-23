@@ -92,8 +92,8 @@ AFRAME.registerSystem('research-logger', {
       this.lastFPS,
       AFRAME.scenes[0].systems["local-audio-analyser"].volume,
       window.APP.store.state.preferences.audioOutputMode === "audio" ? 1 : 0,
-      flattenHandData(leftHandPosition, leftHandQuat, leftHandDirection),
-      flattenHandData(rightHandPosition, rightHandQuat, rightHandDirection)
+      this.flattenHandData(leftHandPosition, leftHandQuat, leftHandDirection),
+      this.flattenHandData(rightHandPosition, rightHandQuat, rightHandDirection)
     ]);
 
     if (++this.tickCount > this.tickPayloadSize) {
@@ -122,9 +122,9 @@ AFRAME.registerSystem('research-logger', {
 
   flattenHandData(position, quaternion, direction) {
     return {
-      pos: [position.x, position.y, position.z].map(flattenZeros),
-      rot: [quaternion._x, quaternion._y, quaternion._z, quaternion._w].map(flattenZeros),
-      dir: [direction.x, direction.y, direction.z].map(flattenZeros)
+      pos: [position.x, position.y, position.z].map(this.flattenZeros),
+      rot: [quaternion._x, quaternion._y, quaternion._z, quaternion._w].map(this.flattenZeros),
+      dir: [direction.x, direction.y, direction.z].map(this.flattenZeros)
     };
   },
 
