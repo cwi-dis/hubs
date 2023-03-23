@@ -91,8 +91,11 @@ AFRAME.registerSystem('research-logger', {
       AFRAME.scenes[0].states.includes("muted") ? 1 : 0,
       this.lastFPS,
       AFRAME.scenes[0].systems["local-audio-analyser"].volume,
-      window.APP.store.state.preferences.audioOutputMode === "audio" ? 1 : 0
+      window.APP.store.state.preferences.audioOutputMode === "audio" ? 1 : 0,
+      flattenHandData(leftHandPosition, leftHandQuat, leftHandDirection),
+      flattenHandData(rightHandPosition, rightHandQuat, rightHandDirection)
     ]);
+
     if (++this.tickCount > this.tickPayloadSize) {
       let infodata = [
         getUUID(),
