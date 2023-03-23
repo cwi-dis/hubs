@@ -40,8 +40,8 @@ AFRAME.registerSystem('research-logger', {
 
     const avatarPOV = document.getElementById('avatar-pov-node');
     const avatarRig = document.getElementById('avatar-rig');
-    const leftHandRig = document.getElementById('left-cursor-controller');
-    const rightHandRig = document.getElementById('right-cursor-controller');
+    const leftHandRig = document.getElementById('player-left-controller');
+    const rightHandRig = document.getElementById('player-right-controller');
 
     const rigPosition = avatarRig.object3D.getWorldPosition(new THREE.Vector3());
     const rigQuant = avatarRig.object3D.getWorldQuaternion(new THREE.Quaternion());
