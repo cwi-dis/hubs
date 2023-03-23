@@ -117,6 +117,14 @@ AFRAME.registerSystem('research-logger', {
     return (Math.round(n * p) / p);
   },
 
+  flattenHandData(position, quaternion, direction) {
+    return {
+      pos: [position.x, position.y, position.z].map(flattenZeros),
+      rot: [quaternion._x, quaternion._y, quaternion._z, quaternion._w].map(flattenZeros),
+      dir: [direction.x, direction.y, direction.z].map(flattenZeros)
+    };
+  },
+
   // This doesn't change a lot, so lets just push it once per POST
   getDeviceInfo() {
     const deviceInfo = [
