@@ -65,4 +65,5 @@ dist/
 certs/
 results/
 .ret.credentials
-yarn.lock
+src/assets/locales/en.json
+src/assets/locales/extracted-messages.json
