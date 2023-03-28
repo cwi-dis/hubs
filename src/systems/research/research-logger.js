@@ -92,8 +92,8 @@ AFRAME.registerSystem('research-logger', {
       this.lastFPS,
       AFRAME.scenes[0].systems["local-audio-analyser"].volume,
       window.APP.store.state.preferences.audioOutputMode === "audio" ? 1 : 0,
-      this.flattenHandData(leftHandPosition, leftHandQuat, leftHandDirection),
-      this.flattenHandData(rightHandPosition, rightHandQuat, rightHandDirection)
+      ...this.flattenHandData(leftHandPosition, leftHandQuat, leftHandDirection),
+      ...this.flattenHandData(rightHandPosition, rightHandQuat, rightHandDirection)
     ]);
 
     if (++this.tickCount > this.tickPayloadSize) {
@@ -121,11 +121,11 @@ AFRAME.registerSystem('research-logger', {
   },
 
   flattenHandData(position, quaternion, direction) {
-    return {
-      pos: [position.x, position.y, position.z],
-      rot: [quaternion._x, quaternion._y, quaternion._z, quaternion._w],
-      dir: [direction.x, direction.y, direction.z]
-    };
+    return [
+      position.x, position.y, position.z,
+      quaternion._x, quaternion._y, quaternion._z, quaternion._w,
+      direction.x, direction.y, direction.z
+    ];
   },
 
   // This doesn't change a lot, so lets just push it once per POST
