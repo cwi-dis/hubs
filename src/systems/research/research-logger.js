@@ -17,6 +17,10 @@ AFRAME.registerSystem('research-logger', {
     this.tickPayloadSize = 4000;
     this.ntpMoment = require('moment');
     this.payload = [];
+
+    const infoStore = JSON.parse(localStorage.getItem("___hubs_store"));
+    this.displayName = infoStore.profile.displayName;
+    console.log("Display Name:", this.displayName);
   },
 
   tick() {
@@ -99,6 +103,7 @@ AFRAME.registerSystem('research-logger', {
     if (++this.tickCount > this.tickPayloadSize) {
       let infodata = [
         getUUID(),
+        this.displayName,
         timestamp, // post time
         window.APP.store.credentialsAccountId !== null ? window.APP.store.credentialsAccountId : "",
         window.APP.store.state.profile.avatarId,
