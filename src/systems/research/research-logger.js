@@ -47,6 +47,9 @@ AFRAME.registerSystem('research-logger', {
     const leftHandRig = document.getElementById('player-left-controller');
     const rightHandRig = document.getElementById('player-right-controller');
 
+    leftHandRig.object3D.visible = false;
+    rightHandRig.object3D.visible = false;
+
     const rigPosition = avatarRig.object3D.getWorldPosition(new THREE.Vector3());
     const rigQuant = avatarRig.object3D.getWorldQuaternion(new THREE.Quaternion());
     const rigDirection = avatarRig.object3D.getWorldDirection(new THREE.Vector3());
