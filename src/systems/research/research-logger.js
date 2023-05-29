@@ -6,7 +6,7 @@ import { detectOS } from 'detect-browser';
 
 AFRAME.registerSystem('research-logger', {
   init: function() {
-    this.enableLogger = qsTruthy('log') || window.location.pathname.indexOf("vrsocial") > -1;
+    this.enableLogger = qsTruthy('log') || window.location.pathname.indexOf("vrsocial") > -1 || window.location.pathname.indexOf("socialvr") > -1;
 
     console.log("RESEARCH LOGGER", this.enableLogger);
 
